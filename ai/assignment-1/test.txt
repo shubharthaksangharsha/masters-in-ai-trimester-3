@@ -1,0 +1,161 @@
+data.csv:-
+
+X, y 
+
+0.374540118847363 9.35190879714899 
+
+0.950714306409916 5.08010823032453 
+
+0.731993941811405 7.4349837010588 
+
+0.598658484197037 8.39121582007968 
+
+0.156018640442437 10.0462280535518 
+
+0.155994520336203 10.2025627657918 
+
+0.0580836121681995 10.2333081163521 
+
+0.866176145774935 6.38644844622092 
+
+0.601115011743209 8.17225399984722 
+
+0.708072577796046 6.99487784281152
+
+# Import relevant libraries 
+
+import numpy as np
+
+import matplotlib.pyplot as plt
+
+from numpy import loadtxt
+
+def load_data(file_name):
+
+    data = loadtxt(file_name, delimiter=',', skiprows=1)
+
+    X = data[:, 0] 
+
+    y = data[:, 1]
+
+    return X, y
+
+def vis_data(X,y):
+
+    #FOR LINEAR REGRESSION, I will use Scatter plot to get idea how my data points will look like 
+
+    #So that I will draw the best fit line for it 
+
+    plt.figure(figsize=(10,6))
+
+    plt.subplot(2, 2, 1)
+
+    plt.scatter(X, y, color='g', label='X vs y')
+
+    plt.title('Scatter Plot of X vs y')
+
+    plt.xlabel('X (input)')
+
+    plt.ylabel('y (output)')
+
+    plt.legend();
+
+    
+
+    #I will also plot an histogram of Y to understand how many times a value of Y occurs(frequency of Y)
+
+    plt.subplot(2, 2, 3)
+
+    plt.hist(y, bins=10, color='r', edgecolor='black')
+
+    plt.title('Histogram of y')
+
+    plt.xlabel('y (Output)')
+
+    plt.ylabel('Frequency')
+
+    #Tight the layout so that I can put the figure don't overlays 
+
+    plt.tight_layout()
+
+    plt.show();
+
+## DO NOT MODIFY
+
+vis_data(X,y)
+
+# y_true --> the target values.
+# y_pred --> the predicted values
+def loss(y_true, y_pred):    
+    #Calculating loss.
+    #For loss function I am taking MSE(Mean square error) 
+    #formula is (1 / m) * np.sum((y_pred - y_true) ** 2) (where y_true: target values, y_pred: predicted values and `m`: total length of true labels)
+    m = len(y_true)
+    loss = (1/ m) * np.sum((y_pred - y_true) ** 2)
+    return loss
+
+loss(np.array([5, 2]), np.array([10, 3]))
+
+#Input:
+# X --> Input.
+# y_true --> target values.
+# y_pred --> predictions.
+#return:
+# dw --> the gradient with respect to the weights
+# db --> the gradient with respect to the bias.
+def gradients(X, y_true, y_pred):
+    # write your code here
+    #first i will calculate the total number of true labels i.e `m`
+    m = len(y_true)
+    
+    #Now calculate the `dw` which is nothing but partial differentiation of weights i.e: 
+    '''
+    dw= 1/m ∑(y(pred) - y (true))* X
+    '''
+    dw = (1 / m) * np.sum((y_pred - y_true) * X)
+
+    
+    #Now calculate the `db` which is nothing but partial differentiation of bias i.e:
+    '''
+    dw= 1/m ∑(y(pred) - y (true)) 
+    '''
+    dw = (1 / m) * np.sum(y_pred - y_true)
+    return dw, db
+dw,db = gradients(np.array([5]),np.array([1.5]),np.array([1.1]))
+
+print(f'dw = {dw} , db = {db}')
+
+# X --> Input.
+# y --> true/target value.
+# add more arguments as you need
+def train(X, y, learning_rate: float =0.01, epochs: int= 1000):
+    '''
+    X: Training data points 
+    y: target values 
+    learning_rate(alpha): the steps to take to reach the converge point 
+    epochs: no. of iterations to held for model to complete the training 
+    '''
+    # write your code here
+    m = len(y)
+    w = 0
+    b = 0 
+    losses = []
+    for i in range(epochs):
+        #First I will calculate the loss function and append it to the `losses` list 
+        y_pred = w * X + b #I will calculate the y_prediction 
+        loss_calculation = loss(y, y_pred)
+        losses.append(loss_calculation)
+        
+        #Now, I will try to compute the gradients i.e `dw` and `db` 
+        dw, db = gradients(X, y, y_pred)
+        print(dw, db)
+        #I will update the Weights and bias 
+        w -= learning_rate * dw 
+        b -= learning_rate * db 
+        
+        #I will also print the iterations after every 100 epochs of intervals.
+        if i%100 == 0:
+            print(f"Epochs {i} Current loss: {loss_calculation}")
+        
+    # returning weights, bias and losses(List).
+    return w, b, losses
